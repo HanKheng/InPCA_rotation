@@ -44,6 +44,7 @@ plt.plot(log(w/max(abs(w))))
 # Generally, we perform rotation/boosts on the nth axis with respect to the first n-1 axes. 
 # After that, we perform similar operation on the n-1 th axis with respect to the first n-2 axes...
 
+# Functions below are defined with the assumption that rows of matrices represents projection vectors on nth axis
 def boosts(mat,axis1,axis2,phi):
     mat[axis1]=cosh(phi)*mat[axis1]+sinh(phi)*mat[axis2]
     mat[axis2]=cosh(phi)*mat[axis2]+sinh(phi)*mat[axis1]
