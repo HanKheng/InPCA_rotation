@@ -46,21 +46,23 @@ plt.plot(log(w/max(abs(w))))
 
 # Functions below are defined with the assumption that rows of matrices represents projection vectors on nth axis
 def boosts(mat,axis1,axis2,phi):
-    mat[axis1]=cosh(phi)*mat[axis1]+sinh(phi)*mat[axis2]
-    mat[axis2]=cosh(phi)*mat[axis2]+sinh(phi)*mat[axis1]
-    return mat
+    mat1=mat.copy()
+    mat1[axis1]=cosh(phi)*mat1[axis1]+sinh(phi)*mat1[axis2]
+    mat1[axis2]=cosh(phi)*mat1[axis2]+sinh(phi)*mat1[axis1]
+    return mat1
 
 def rotation(mat,axis1,axis2,theta):
-    mat[axis1]=cos(theta)*mat[axis1]-sin(theta)*mat[axis2]
-    mat[axis2]=cos(theta)*mat[axis2]+sin(theta)*mat[axis1]
-    return mat
+    mat1=mat.copy()
+    mat1[axis1]=cos(theta)*mat1[axis1]-sin(theta)*mat1[axis2]
+    mat1[axis2]=cos(theta)*mat1[axis2]+sin(theta)*mat1[axis1]
+    return mat1
 
-def cost_func(mat,axis1,axis2,arg,n):
+def cost_func(arg,mat,axis1,axis2,n):
     if n==1:    
-        mat=rotation(mat,axis1,axis2,arg)
+        mat1=rotation(mat,axis1,axis2,arg)
     else:
-        mat=boosts(mat,axis1,axis2,arg)
-    return sum(mat[axis1]**2)     
+        mat1=boosts(mat,axis1,axis2,arg)
+    return sum(mat1[axis1]**2)     
 
 def isometric_transformaton(mat,metric_sig,axis_min):
     axis1=axis_min
@@ -69,16 +71,16 @@ def isometric_transformaton(mat,metric_sig,axis_min):
         # check the nature of the axes, if the metric is the same, we perform rotation else, boost
         if metric_sig[axis1]-metric_sig[axis2]==0:
             theta0=0;
-            res=minimize(cost_func(mat,axis1,axis2,theta,1), theta0)
+            res=minimize(cost_func,theta0,args=(mat,axis1,axis2,1))
             # algo for minimization of manifold projection along nth direction
             # criteria: minimize the sum of projection**2 along nth direction
             theta=res.x
             mat=rotation(mat,axis1,axis2,theta)
         else:
-                # algo for minimization of manifold projection along nth direction
-                # criteria: minimize the sum of projection**2 along nth direction
+            # algo for minimization of manifold projection along nth direction
+            # criteria: minimize the sum of projection**2 along nth direction
             phi0=0;
-            res=minimize(cost_func(mat,axis1,axis2,phi,0), phi0)
+            res=minimize(cost_func,phi0,args=(mat,axis1,axis2,2))
             phi=res.x
             mat=boosts(mat,axis1,axis2,phi)
     return mat
